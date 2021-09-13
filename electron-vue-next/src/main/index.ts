@@ -9,13 +9,15 @@ import indexHtmlUrl from '/@renderer/index.html'
 import sideHtmlUrl from '/@renderer/side.html'
 import logoUrl from '/@static/logo.png'
 
+let mainWindow: BrowserWindow | null = null
+
 async function main() {
   const logger = new Logger()
   logger.initialize(app.getPath('userData'))
   initialize(logger)
   app.whenReady().then(() => {
-    const main = createWindow()
-    const [x, y] = main.getPosition()
+    mainWindow = createWindow()
+    const [x, y] = mainWindow.getPosition()
     const side = createSecondWindow()
     side.setPosition(x + 800 + 5, y)
   })
@@ -61,6 +63,13 @@ function createSecondWindow() {
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
+
+app.on('second-instance', () => {
+  if (mainWindow) {
+    mainWindow?.restore()
+    mainWindow?.show()
+  }
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
